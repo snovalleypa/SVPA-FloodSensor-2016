@@ -1,3 +1,6 @@
+# ignore compiled bin files generated when flashing firmware
+*.bin
+
 # Compiled Object files
 *.slo
 *.lo

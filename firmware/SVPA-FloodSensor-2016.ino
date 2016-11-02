@@ -1,22 +1,31 @@
-
 /******************************************************************************
-  Basic SparkFun Photon Weather Shield
+  2016 SVPA Flood Sensor Prototype Firmware
   by Tom Sayles <TSayles@Soot-n-Smoke.com>
 
-  Code taken heavely from the SparkFun Photon Weather Shield basic example
+*******************************************************************************
+  Some code taken heavely from the SparkFun Photon Weather Shield basic example
   by Joel Bartlett @ SparkFun Electronics
   https://github.com/sparkfun/SparkFun_Photon_Weather_Shield_Particle_Library
 
+  Some code taken heavely from the  I2CXL-MaxSonar® - WR/WRCTM Series data sheet
+  http://www.maxbotix.com/documents/I2CXL-MaxSonar-WR_Datasheet.pdf
+
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(2);
+PRODUCT_VERSION(5);
 
+
+/******************************************************************************
+  Basic SparkFun Photon Weather Shield
+*******************************************************************************/
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
 double humidity = 0;
 double tempf = 0;
 double pascals = 0;
 double baroTemp = 0;
+double altf = 0;
+
 
 //#include "SparkFunMAX17043/SparkFunMAX17043.h" // Include the SparkFun MAX17043 library
 
@@ -31,10 +40,6 @@ Weather weatherShield;
 
 /******************************************************************************
   Basic Range finding with I2CXL-MaxSonar
-  by Tom Sayles <TSayles@Soot-n-Smoke.com>
-
-  Code taken heavely from the  I2CXL-MaxSonar® - WR/WRCTM Series data sheet
-  http://www.maxbotix.com/documents/I2CXL-MaxSonar-WR_Datasheet.pdf
   Assumes the sensor is using the default address
 
 *******************************************************************************/
@@ -76,7 +81,7 @@ void setup()
     readings. For this example, we will only be using the barometer mode. Be sure
     to only uncomment one line at a time. */
     weatherShield.setModeBarometer();//Set to Barometer Mode
-    //baro.setModeAltimeter();//Set to altimeter Mode
+    //weatherShield.setModeAltimeter();//Set to altimeter Mode
 
     //These are additional MPL3115A2 functions that MUST be called for the sensor to work.
     weatherShield.setOversampleRate(7); // Set Oversample rate
@@ -92,7 +97,7 @@ void setup()
 
     publishData();
 
-    delay(30000); // Wait for any over the air updates.
+    //delay(30000); // Wait for any over the air updates.
 
     digitalWrite(led2, HIGH);
     delay(500);
@@ -107,7 +112,7 @@ void setup()
     digitalWrite(led2, LOW);
 
     //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
-    System.sleep(SLEEP_MODE_DEEP,1000); //shut down for 16 minutes and 40 seconds
+    System.sleep(SLEEP_MODE_DEEP,1200); //shut down for 20 minutes
 
 
 
@@ -156,10 +161,14 @@ void publishWeather(){
 
     Particle.publish("humidity", String(humidity));
     Particle.publish("tempF", String(tempf));
+    delay(1000);
 
     Particle.publish("pressurePascals", String(pascals));
     Particle.publish("baroTemp", String(baroTemp));
+
+    Particle.publish("altitudeFt", String(altf));
     delay(1000);
+
 
 }
 
@@ -187,11 +196,14 @@ void getWeather()
   //Measure the Barometer temperature in F from the MPL3115A2
   baroTemp = weatherShield.readBaroTempF();
 
+  weatherShield.setModeBarometer();//Set to Barometer Mode
   //Measure Pressure from the MPL3115A2
   pascals = weatherShield.readPressure();
 
+
+  weatherShield.setModeAltimeter();//Set to altimeter Mode
   //If in altitude mode, you can get a reading in feet with this line:
-  //float altf = weatherShield.readAltitudeFt();
+  altf = weatherShield.readAltitudeFt();
 }
 
 void takeRangeReading(){

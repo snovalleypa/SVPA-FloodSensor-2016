@@ -12,13 +12,15 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(5);
+PRODUCT_VERSION(6);
 
 
 /******************************************************************************
   Basic SparkFun Photon Weather Shield
 *******************************************************************************/
 #include "SparkFun_Photon_Weather_Shield_Library.h"
+
+#include "getUpdateOTA.h"
 
 double humidity = 0;
 double tempf = 0;
@@ -110,6 +112,9 @@ void setup()
     digitalWrite(led2, HIGH);
     delay(1000);
     digitalWrite(led2, LOW);
+
+    getUpdateOTA();
+
 
     //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
     System.sleep(SLEEP_MODE_DEEP,1200); //shut down for 20 minutes

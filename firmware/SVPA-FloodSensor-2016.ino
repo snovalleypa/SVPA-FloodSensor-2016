@@ -12,7 +12,7 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(6);
+PRODUCT_VERSION(7);
 
 
 /******************************************************************************
@@ -117,7 +117,16 @@ void setup()
 
 
     //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
-    System.sleep(SLEEP_MODE_DEEP,getSecUntilUpdate()); //shut down for 20 minutes
+    int sleepSec = getSecUntilUpdate();
+
+    //@TODO Comment this publish event, once done debugging
+    Particle.publish("Sleeping:",
+      "Going to sleep for: " + String(sleepSec) + " seconds."
+      );
+
+    delay(2000); // to allow last events to reach the cloud
+
+    System.sleep(SLEEP_MODE_DEEP,sleepSec); //shut down for 20 minutes
 
 
 
@@ -168,11 +177,11 @@ void publishWeather(){
     Particle.publish("tempF", String(tempf));
     delay(1000);
 
-    Particle.publish("pressurePascals", String(pascals));
-    Particle.publish("baroTemp", String(baroTemp));
+//    Particle.publish("pressurePascals", String(pascals));
+//    Particle.publish("baroTemp", String(baroTemp));
 
-    Particle.publish("altitudeFt", String(altf));
-    delay(1000);
+//    Particle.publish("altitudeFt", String(altf));
+//    delay(1000);
 
 
 }

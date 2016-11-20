@@ -20,18 +20,24 @@ void checkUpdateOTA(){
   //Check the current time
   int nowTime = Time.now();
 
+  // Set time zone to Pacific USA standard time
+  Time.zone(-8);
+
   if (nextUpdateCheck < nowTime){
     // Wait for an over the air update
     nextUpdateCheck = nowTime + (updateCadanceOTA * 3600);
 
-    // Set time zone to Pacific USA standard time
-    Time.zone(-8);
-    
     Particle.publish("UpdateOTA:",
-      "next Update at: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
+      "Wait for next OTA Update after: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
       );
 
     delay(updateDelayOTA);
+
+  } else {
+    //@TODO Comment this publish event, once done debugging
+    Particle.publish("UpdateOTA:",
+      "Next OTA Update planned after: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
+      );
 
   }
 
@@ -46,11 +52,12 @@ long getSecUntilUpdate(){
   long secUntilUpdate = 900; // aka 15 minutes
 
   //Check the current time, in minutes
-  minute = Time.minute() + 2;
+  minute = Time.minute();
   //@TODO Fix time check to account for runTimeAdjSec
 
   // Compute the next publish time
-
+  //@TODO Refactor to work with an actual target time
+  //@TODO Impliment runTimeAdjSec
   if (minute > 45) {
     minute = minute - 60;
     nextPublishTime = 0;
@@ -63,7 +70,7 @@ long getSecUntilUpdate(){
   }
 
   // compute the number of minuted until the next publish time
-  secUntilUpdate = (nextPublishTime - minute) * 60 + runTimeAdjSec;
+  secUntilUpdate = (nextPublishTime - minute) * 60;
 
   //@TODO Adjust secUntilUpdate by a random amount to reduce network contention
 

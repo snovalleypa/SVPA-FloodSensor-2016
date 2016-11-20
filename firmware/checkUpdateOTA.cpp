@@ -12,7 +12,7 @@ int updateDelayOTA = 60000; //miliseconds, aka 1 minute
 int updateCadanceOTA = 25; //hours, aka once per day
 
 
-int runTimeAdjSec = -118; // adjustment time from wake-up to publish
+int runTimeAdjSec = -60; // adjustment time from wake-up to publish
 
 void checkUpdateOTA(){
   //@TODO Add routine to ensure that OTA updates are receivable once per day.
@@ -52,7 +52,7 @@ long getSecUntilUpdate(){
   long secUntilUpdate = 900; // aka 15 minutes
 
   //Check the current time, in minutes
-  minute = Time.minute();
+  minute = Time.minute() + 2;
   //@TODO Fix time check to account for runTimeAdjSec
 
   // Compute the next publish time
@@ -70,9 +70,15 @@ long getSecUntilUpdate(){
   }
 
   // compute the number of minuted until the next publish time
-  secUntilUpdate = (nextPublishTime - minute) * 60;
+  secUntilUpdate = ((nextPublishTime - minute) * 60) + runTimeAdjSec;
 
   //@TODO Adjust secUntilUpdate by a random amount to reduce network contention
+
+
+  // check that getSecUntilUpdate is in a reasonable range 60 to 3600 seconds
+  if (secUntilUpdate < 60){secUntilUpdate = 60;}
+  if (secUntilUpdate > 3600){secUntilUpdate = 3600;}
+
 
   return secUntilUpdate;
 };

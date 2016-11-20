@@ -10,6 +10,6 @@
 #define checkUpdateOTA_h
 
 void checkUpdateOTA();
-long getSecUntilUpdate();
+long getSecUntilPublish();
 
 #endif

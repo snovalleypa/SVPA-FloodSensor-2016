@@ -13,6 +13,8 @@ int updateCadanceOTA = 25; //hours, aka once per day
 
 
 int runTimeAdjSec = -60; // adjustment time from wake-up to publish
+int publishTimeMin = 60;   // minimum sleep seconds between publish events
+int publishTimeMax = 3600; // maximum sleep seconds between publish events
 
 void checkUpdateOTA(){
   //@TODO Add routine to ensure that OTA updates are receivable once per day.
@@ -44,41 +46,69 @@ void checkUpdateOTA(){
 
 };
 
-long getSecUntilUpdate(){
+long getSecUntilPublish(){
   //Publish data events only once every 15 minutes
 
   int minute = 0;
-  int nextPublishTime = 0;
-  long secUntilUpdate = 900; // aka 15 minutes
+  int nextPublishMinute = 0;
+  long secUntilPublish = 900; // aka 15 minutes
 
+  struct tm t;
   //Check the current time, in minutes
-  minute = Time.minute() + 2;
+  minute = Time.minute() + 1;
   //@TODO Fix time check to account for runTimeAdjSec
 
   // Compute the next publish time
   //@TODO Refactor to work with an actual target time
   //@TODO Impliment runTimeAdjSec
+
+  time_t t_of_day;
+   t.tm_year = Time.year()-1900;
+   t.tm_mon = Time.month() -1;           // Month, 0 - jan
+   t.tm_mday = Time.day();          // Day of the month
+   t.tm_hour = Time.hour() + 8; // w/ TZ correction
+   t.tm_min = 0;
+   t.tm_sec = 0;
+   t.tm_isdst = -1;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+
+
   if (minute > 45) {
     minute = minute - 60;
-    nextPublishTime = 0;
+    nextPublishMinute = 0;
+    t.tm_hour = t.tm_hour + 1;
+    t.tm_min = 0;
   } else if (minute > 30) {
-    nextPublishTime = 45;
+    nextPublishMinute = 45;
+    t.tm_min = 45;
   } else if (minute > 15) {
-    nextPublishTime = 30;
+    nextPublishMinute = 30;
+    t.tm_min = 30;
   } else if (minute > 0) {
-    nextPublishTime = 15;
+    nextPublishMinute = 15;
+    t.tm_min = 15;
   }
 
-  // compute the number of minuted until the next publish time
-  secUntilUpdate = ((nextPublishTime - minute) * 60) + runTimeAdjSec;
+  t_of_day = mktime(&t);
+
+  // compute the number of minute until the next publish time
+
+  secUntilPublish = (int)t_of_day - Time.now() + runTimeAdjSec;
+
+  //@TODO Comment this publish event, once done debugging
+  Particle.publish("Debug:",
+    "Target:" + String((int)t_of_day) + " - Now: " + String(Time.now()) +
+    " = secUntilPublish:"+ String(secUntilPublish)
+    );
+
+  //secUntilPublish = ((nextPublishMinute - minute) * 60) + runTimeAdjSec;
 
   //@TODO Adjust secUntilUpdate by a random amount to reduce network contention
 
 
-  // check that getSecUntilUpdate is in a reasonable range 60 to 3600 seconds
-  if (secUntilUpdate < 60){secUntilUpdate = 60;}
-  if (secUntilUpdate > 3600){secUntilUpdate = 3600;}
+  // check that getSecUntilUpdate is in a reasonable range
+  if (secUntilPublish < publishTimeMin){secUntilPublish = publishTimeMin;}
+  if (secUntilPublish > publishTimeMax){secUntilPublish = publishTimeMax;}
 
 
-  return secUntilUpdate;
+  return secUntilPublish;
 };

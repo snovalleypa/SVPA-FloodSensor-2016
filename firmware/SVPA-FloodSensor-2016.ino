@@ -117,7 +117,7 @@ void setup()
 
 
     //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
-    int sleepSec = getSecUntilUpdate();
+    int sleepSec = getSecUntilPublish();
 
     //@TODO Comment this publish event, once done debugging
     Particle.publish("Sleeping:",

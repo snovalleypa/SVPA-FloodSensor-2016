@@ -8,7 +8,9 @@
 STARTUP(System.enableFeature(FEATURE_RETAINED_MEMORY));
 
 retained int nextUpdateCheck;
-int updateDelayOTA = 3600; //miliseconds, aka 1 minute
+int updateDelayOTA = 60000; //miliseconds, aka 1 minute
+int updateCadanceOTA = 25; //hours, aka once per day
+
 
 int runTimeAdjSec = -118; // adjustment time from wake-up to publish
 
@@ -20,7 +22,17 @@ void checkUpdateOTA(){
 
   if (nextUpdateCheck < nowTime){
     // Wait for an over the air update
+    nextUpdateCheck = nowTime + (updateCadanceOTA * 3600);
+
+    // Set time zone to Pacific USA standard time
+    Time.zone(-8);
+    
+    Particle.publish("UpdateOTA:",
+      "next Update at: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
+      );
+
     delay(updateDelayOTA);
+
   }
 
 
@@ -34,7 +46,8 @@ long getSecUntilUpdate(){
   long secUntilUpdate = 900; // aka 15 minutes
 
   //Check the current time, in minutes
-  minute = Time.minute();
+  minute = Time.minute() + 2;
+  //@TODO Fix time check to account for runTimeAdjSec
 
   // Compute the next publish time
 

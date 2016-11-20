@@ -6,9 +6,10 @@
 
 #include "application.h"//needed for all Particle libraries
 
-#ifndef getUpdateOTA_h
-#define getUpdateOTA_h
+#ifndef checkUpdateOTA_h
+#define checkUpdateOTA_h
 
-void getUpdateOTA();
+void checkUpdateOTA();
+long getSecUntilUpdate();
 
 #endif

@@ -20,7 +20,7 @@ PRODUCT_VERSION(6);
 *******************************************************************************/
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
-#include "getUpdateOTA.h"
+#include "checkUpdateOTA.h"
 
 double humidity = 0;
 double tempf = 0;
@@ -113,11 +113,11 @@ void setup()
     delay(1000);
     digitalWrite(led2, LOW);
 
-    getUpdateOTA();
+    checkUpdateOTA();
 
 
     //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
-    System.sleep(SLEEP_MODE_DEEP,1200); //shut down for 20 minutes
+    System.sleep(SLEEP_MODE_DEEP,getSecUntilUpdate()); //shut down for 20 minutes
 
 
 

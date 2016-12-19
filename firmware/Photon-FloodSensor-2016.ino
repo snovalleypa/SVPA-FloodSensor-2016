@@ -66,7 +66,7 @@ void setup()
     //@TODO Comment this publish event, once done debugging
     Particle.publish("Awake:",
     "This unit just woke up and is running setup()"
-    )
+    );
 
     //Initialize the I2C sensors and ping them
     weatherShield.begin();
@@ -286,25 +286,22 @@ void getVoltage () {
 
 void publishVoltage() {
 
-    // fuel.getVoltage() returns a voltage value (e.g. 3.93)
-	voltage = fuel.getVCell();
-	// fuel.getSOC() returns the estimated state of charge (e.g. 79%)
-	soc = fuel.getSoC();
-	// lipo.getAlert() returns a 0 or 1 (0=alert not triggered)
-	alert = fuel.getAlert();
-
-    Particle.publish("voltage", String(voltage));
-    Particle.publish("soc", String(soc));
-    if (alert) {
-        char resultstr[64]; //String to store the alret data
-        sprintf(resultstr, "{\"voltage\":%d,\"soc\":%d}", voltage, soc); //Write sensor data to string
-        Particle.publish("batteryAlert", resultstr);
-    }
+  if (voltage == 0){
+    getVoltage ();
+  }
+  Particle.publish("voltage", String(voltage));
+  Particle.publish("soc", String(soc));
+  if (alert) {
+      char resultstr[64]; //String to store the alret data
+      sprintf(resultstr, "{\"voltage\":%d,\"soc\":%d}", voltage, soc); //Write sensor data to string
+      Particle.publish("batteryAlert", resultstr);
+  }
 }
 
 void publishRSSI() {
 
-    CellularSignal myRSSI = Cellular.RSSI();
+    //CellularSignal myRSSI = Cellular.RSSI();
+    int myRSSI = WiFi.RSSI();
 
     //Serial.print("  RSSI = ");
     //Serial.print(myRSSI);

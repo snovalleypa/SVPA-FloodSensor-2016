@@ -13,8 +13,8 @@
 *******************************************************************************/
 
 // Only include the SVPA PRODUCT_ID & PRODUCT_VERSION if compiling for an Electron
-//PRODUCT_ID(1623);
-//PRODUCT_VERSION(7);
+PRODUCT_ID(2631);
+PRODUCT_VERSION(1);
 
 /******************************************************************************
   Basic SparkFun Photon Weather Shield

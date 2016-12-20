@@ -9,17 +9,16 @@ var socURL = "";
 var rangeBaseURL = "https://data.sparkfun.com/output/n1EQXJJb6mUzDLV52dN5?grep[source]=";
 var rangeURL = "";
 
-var deviceArray;
-
 var graphWidth = 960;
 var graphHeight = 500;
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
+var margin = {top: 20, right: 20, bottom: 75, left: 50},
       width = graphWidth - margin.left - margin.right,
       height = graphHeight - margin.top - margin.bottom;
 
-var graphTimeOffset = -72; //hours
+var graphTimeOffset = -500; //hours
+var currentTZ = "local";
 
-var parseTime = d3.timeParse("%d-%b-%y");
+var graphDeviceID = "380054000c51343334363138";
 
 var x = d3.scaleTime()
     .rangeRound([0, width]);
@@ -44,10 +43,12 @@ var socAxis = d3.axisLeft()
                 .ticks(10);
 
 var formatTime = d3.timeFormat("%H:%M");
-var parseDate = d3.timeParse("%d-%b-%y");
+//var parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%LZ");
+var parseDate = d3.utcParse("%Y-%m-%dT%H:%M:%S.%LZ");
 
 var todayDate = new Date();
 var graphStartDate = d3.timeHour.offset(todayDate, graphTimeOffset);
+var graphEndDate = d3.timeHour.offset(todayDate, (-1 * graphTimeOffset / 50));
 
 var lastUpdateSpan = d3.select("#lastUpdate").html(todayDate);
 
@@ -55,17 +56,20 @@ console.log( "graphStartDate: " + graphStartDate.getTime());
 console.log( "todayDate: " + todayDate.getTime());
 
 var timeScale = d3.scaleTime()
-                  .domain([graphStartDate.getTime(),todayDate.getTime()])
+                  .domain([graphStartDate.getTime(),graphEndDate.getTime()])
                   .rangeRound([0,width]);
 
 var timeAxis = d3.axisBottom()
               .scale(timeScale)
-              .ticks(d3.timeMinute.every(120))
+              .ticks(d3.timeHour.every(12))
+              .tickSizeInner(-height)
+
+              .tickFormat(d3.timeFormat("%b %d, %H:%M"))
               ;
 
 var socLine = d3.line()
-            .x(function(d) { return timeScale(d.timestamp); })
-            .y(function(d) { return socScale(d.soc); });
+            .x(function(d) { return timeScale(d.timestamp.getTime()); })
+            .y(function(d) { return socScale(+d.soc); });
 
 var graphCanvas = d3.select("#graph")
                 .append("svg:svg")
@@ -82,8 +86,15 @@ var plotArea = graphCanvas.append("g")
 var xAxisArea = plotArea.append("g")
         .attr("class", "xAxisArea")
         .attr("transform", "translate(0," + height + ")")
-
-        .call(d3.axisBottom(timeScale));
+        //.call(d3.axisBottom(timeScale))
+        .call(timeAxis)
+        .selectAll("text")
+          .attr("y", 0)
+          .attr("x", -75)
+          .attr("dy", ".35em")
+          .attr("transform", "rotate(-90)")
+          .style("text-anchor", "start");
+        ;
 
 
 var yAxisArea = plotArea.append("g")
@@ -96,86 +107,7 @@ var yAxisArea = plotArea.append("g")
          .style("text-anchor", "end")
          .text("State of Charge (%)");
 
-// **** Build Devices List ****
-d3.csv("Devices.csv", function(devices) {
 
-  console.log(devices);
-  console.log("sorting...");
-
-  devices.sort(function(a, b) {
-    var nameA = a.DeviceName.toUpperCase(); // ignore upper and lowercase
-    var nameB = b.DeviceName.toUpperCase(); // ignore upper and lowercase
-    if (nameA < nameB) {
-      return -1;
-    }
-    if (nameA > nameB) {
-      return 1;
-    }
-
-    // names must be equal
-    return 0;
-  })
-
-  var deviceDiv = d3.select("#deviceList").append("div");
-
-  var deviceList = deviceDiv.selectAll("div")
-//  var deviceList = d3.select("#deviceList")
-      .data(devices)
-      .enter()
-
-  //@TODO Convert from Paragraphs to some kind of table like layout
-  var devicePara = deviceList.append("p")
-          .attr("id", function(d) {
-            return d.DeviceName;
-          })
-          .append("span")
-          .attr("id", function(d) {
-            return (d.DeviceName + "-Name");
-          })
-          .attr("class", "DeviceName")
-          .text(function(d) {
-            console.log(d);
-            return d.DeviceName;
-          });
-
-  devicePara.append("span").text(", ");
-  devicePara.append("span")
-            .text(function(d) {return d.DeviceID})
-            .attr("id", (function(d) {return d.DeviceName}+"-ID"))
-            .attr("class", ("DeviceID"));
-
-  devicePara.append("span").text(", ");
-  devicePara.append("a")
-            .text("soc ")
-            .attr("href", function(d) {
-               socURL = socBaseURL + d.DeviceID;
-               d.socURL = socURL;
-              return socURL;
-            });
-
-  devicePara.append("span").text(", ");
-  devicePara.append("a")
-            .text("Range ")
-            .attr("href", function(d) {
-               rangeURL = rangeBaseURL + d.DeviceID;
-               d.rangeURL = rangeURL;
-              return rangeURL;
-            });
-
-  devicePara.append("span").text(", ");
-  devicePara.append("span")
-            .text("TBD")
-            .attr("id", function(d) {
-              console.log(d.lastSeen);
-               if (typeof d.lastSeen !== "undefined") {
-                 d.lastSeen = "TBD"
-               }
-              return d.lastSeen;
-            });
-
-  deviceArray = Object.create(devices);
-  console.log("devices @ SOC CSV call");
-  console.log(devices);
 
   console.log("socURL @ SOC CSV call");
   console.log(socURL);
@@ -186,24 +118,47 @@ d3.csv("Devices.csv", function(devices) {
                 + (graphStartDate.getUTCMonth()+1) + "-"
                 + (graphStartDate.getUTCDate()+1) + "-"
                 + graphStartDate.getUTCFullYear()
-console.log( "timeFilter: " + timeFilter);
+  console.log( "timeFilter: " + timeFilter);
 
-  d3.csv((socURL+timeFilter), function(socData) {
-      // **** Build State of Charge graph ****
-      console.log("socData @ SOC CSV call");
-      console.log(socData);
+d3.csv(socBaseURL + graphDeviceID + timeFilter,
+      function(d) {
+          d.timestamp = parseDate(d.timestamp);
+          d.soc = +d.soc;
+          return d;
+        },
+      function(error, socData) {
+        if (error) throw error;
+        // **** Build State of Charge graph ****
+
+/*        for (socDataPoint of socData) {
+          console.log("socDataPoint");
+          console.log(socDataPoint.timestamp);
+
+          socDataPoint.timestamp = d3.timeParse(socDataPoint.timestamp);
+          socDataPoint.soc = +socDataPoint.soc;
+        }
+*/
+        console.log("socData after timeParse");
+        console.log(socData);
+
+        var socPath = socLine(socData);
+        //console.log("socPath");
+        //console.log(socPath);
 
 
-      plotArea.append("path")
+        plotArea.append("path")
           .datum(socData)
           .attr("class", "line")
-          .attr("d", socLine);
+          .attr("d", socPath);
+
+      })
+      .on("progress", function(p){
+        //update progress bar
+        console.log("Loading:" + p);
+      })
+      ;
+//    }
+//});
 
 
-
-    });
-
-});
-
-
-console.log("done");
+console.log("done with FloodSensorStatus.js");

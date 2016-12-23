@@ -17,7 +17,7 @@ var margin = {top: 20, right: 20, bottom: 75, left: 50},
 var graphTimeOffset = -500; //hours
 var currentTZ = "local";
 
-var graphDeviceID = "380054000c51343334363138";
+var graph = "380054000c51343334363138";
 
 var x = d3.scaleTime()
     .rangeRound([0, width]);
@@ -116,7 +116,7 @@ console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
                 + graphStartDate.getUTCFullYear()
   console.log( "timeFilter: " + timeFilter);
 
-plotDataURL = socBaseURL + graphDeviceID + timeFilter
+plotDataURL = socBaseURL + graph + timeFilter
 
 
 function plotSensorData(url, lineColor){
@@ -155,10 +155,10 @@ function plotSensorData(url, lineColor){
         ;
   }
 
-plotSensorData(plotDataURL, "#4682B4");
+plotSensorData(plotDataURL, "#4682B4"); 
 
-graphDeviceID = "210022000c51343334363138";
-plotDataURL = socBaseURL + graphDeviceID + timeFilter
+graph = "210022000c51343334363138";
+plotDataURL = socBaseURL + graph + timeFilter
 plotSensorData(plotDataURL, "#B22222");
 
 console.log("done with FloodSensorStatus.js");

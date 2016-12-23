@@ -63,7 +63,7 @@ d3.csv("Devices.csv", function(devices) {
               })
             )
             .attr("href", function(d) {
-               socURL = socBaseURL + d.DeviceID;
+               var socURL = socBaseURL + d.DeviceID;
                d.socURL = socURL;
               return socURL;
             });
@@ -76,7 +76,7 @@ d3.csv("Devices.csv", function(devices) {
               })
             )
             .attr("href", function(d) {
-               rangeURL = rangeBaseURL + d.DeviceID;
+               var rangeURL = rangeBaseURL + d.DeviceID;
                d.rangeURL = rangeURL;
               return rangeURL;
             });

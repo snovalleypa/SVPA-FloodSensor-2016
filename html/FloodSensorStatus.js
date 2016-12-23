@@ -5,9 +5,8 @@
 *******************************************************************************/
 
 var socBaseURL = "https://data.sparkfun.com/output/9JN3JagnELSWrOQvXVN0?grep[source]=";
-var socURL = "";
 var rangeBaseURL = "https://data.sparkfun.com/output/n1EQXJJb6mUzDLV52dN5?grep[source]=";
-var rangeURL = "";
+var plotDataURL = "";
 
 var graphWidth = 960;
 var graphHeight = 500;
@@ -109,10 +108,7 @@ var yAxisArea = plotArea.append("g")
 
 
 
-  console.log("socURL @ SOC CSV call");
-  console.log(socURL);
-
-  console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
+console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
 
   var timeFilter = "&gte[timestamp]="
                 + (graphStartDate.getUTCMonth()+1) + "-"
@@ -120,45 +116,49 @@ var yAxisArea = plotArea.append("g")
                 + graphStartDate.getUTCFullYear()
   console.log( "timeFilter: " + timeFilter);
 
-d3.csv(socBaseURL + graphDeviceID + timeFilter,
-      function(d) {
-          d.timestamp = parseDate(d.timestamp);
-          d.soc = +d.soc;
-          return d;
-        },
-      function(error, socData) {
-        if (error) throw error;
-        // **** Build State of Charge graph ****
-
-/*        for (socDataPoint of socData) {
-          console.log("socDataPoint");
-          console.log(socDataPoint.timestamp);
-
-          socDataPoint.timestamp = d3.timeParse(socDataPoint.timestamp);
-          socDataPoint.soc = +socDataPoint.soc;
-        }
-*/
-        console.log("socData after timeParse");
-        console.log(socData);
-
-        var socPath = socLine(socData);
-        //console.log("socPath");
-        //console.log(socPath);
+plotDataURL = socBaseURL + graphDeviceID + timeFilter
 
 
-        plotArea.append("path")
-          .datum(socData)
-          .attr("class", "line")
-          .attr("d", socPath);
+function plotSensorData(url, lineColor){
 
-      })
-      .on("progress", function(p){
-        //update progress bar
-        console.log("Loading:" + p);
-      })
-      ;
-//    }
-//});
+  d3.csv(url,
+        function(d) {
+            d.timestamp = parseDate(d.timestamp);
+            d.soc = +d.soc;
+            return d;
+          },
+        function(error, socData) {
+          if (error) throw error;
+          // **** Build State of Charge graph ****
 
+
+          console.log("socData after timeParse");
+          console.log(socData);
+
+          var socPath = socLine(socData);
+          //console.log("socPath");
+          //console.log(socPath);
+
+
+          plotArea.append("path")
+            .datum(socData)
+            .attr("class", "line")
+            .style("stroke", lineColor)
+            .attr("d", socPath);
+
+        })
+        .on("progress", function(p){
+          //update progress bar
+          console.log("Loading:" + p);
+        })
+
+        ;
+  }
+
+plotSensorData(plotDataURL, "#4682B4");
+
+graphDeviceID = "210022000c51343334363138";
+plotDataURL = socBaseURL + graphDeviceID + timeFilter
+plotSensorData(plotDataURL, "#B22222");
 
 console.log("done with FloodSensorStatus.js");

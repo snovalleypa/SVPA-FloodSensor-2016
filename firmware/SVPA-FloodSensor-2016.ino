@@ -21,6 +21,7 @@ PRODUCT_VERSION(8);
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
 #include "checkUpdateOTA.h"
+#include "publishSVPA.h"
 
 double humidity = 0;
 double tempf = 0;
@@ -165,6 +166,8 @@ void publishData(){
     publishRange();
 
     publishVoltage();
+
+    publishSVPA();
 
 
     digitalWrite(led2, LOW);

@@ -55,13 +55,22 @@ struct Report {
 
 void publishSVPA(){
   Particle.publish("SVPA:",
-    "{\n"
-    "  \t\"schemaVersion\": \"1\",\n"
-    "  \t\"firmwareVersion\": \"8\",\n"
-    "  \t\"deviceId\": \"Dummy\",\n"
-    "  \t\"nextUpdateTime\": \"1484196300\",\n"
-
-    " }\n"
+    "{"
+    "  \"schemaVersion\": \"1\","
+    "  \"firmwareVersion\": \"8\","
+    "  \"deviceId\": \"Dummy\","
+    "  \"nextUpdateTime\": \"1484196300\","
+    "  \"readings\": [{"
+    "    \"timeStamp\": \"1484196330\","
+    "    \"range\": \"79\","
+    "    \"internalTemp\": \"20.05\","
+    "    \"internalPressure\": \"1010.10\","
+    "    \"internalHumidity\": \"32.122272\","
+    "    \"soc\": \"80.585938\","
+    "    \"rssi\": \"-81,37\","
+    "    \"voltage\": \"3.858300\""
+    "    }]"
+    " }"
 
     );
 

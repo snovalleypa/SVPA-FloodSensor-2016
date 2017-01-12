@@ -29,18 +29,18 @@ void checkUpdateOTA(){
     // Wait for an over the air update
     nextUpdateCheck = nowTime + (updateCadanceOTA * 3600);
 
-    Particle.publish("UpdateOTA:",
+/*    Particle.publish("UpdateOTA:",
       "Wait for next OTA Update after: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
       );
-
+*/
     delay(updateDelayOTA);
 
   } else {
     //@TODO Comment this publish event, once done debugging
-    Particle.publish("UpdateOTA:",
+/*    Particle.publish("UpdateOTA:",
       "Next OTA Update planned after: " + Time.format(nextUpdateCheck, TIME_FORMAT_DEFAULT)
       );
-
+*/
   }
 
 
@@ -95,11 +95,11 @@ long getSecUntilPublish(){
   secUntilPublish = (int)t_of_day - Time.now() + runTimeAdjSec;
 
   //@TODO Comment this publish event, once done debugging
-  Particle.publish("Debug:",
+/*  Particle.publish("Debug:",
     "Target:" + String((int)t_of_day) + " - Now: " + String(Time.now()) +
     " = secUntilPublish:"+ String(secUntilPublish)
     );
-
+*/
   //secUntilPublish = ((nextPublishMinute - minute) * 60) + runTimeAdjSec;
 
   //@TODO Adjust secUntilUpdate by a random amount to reduce network contention

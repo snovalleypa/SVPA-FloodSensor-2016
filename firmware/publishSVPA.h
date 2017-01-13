@@ -9,6 +9,32 @@
 #ifndef publishSVPA_h
 #define publishSVPA_h
 
+#endif
+
+struct Reading {
+  int timeStamp; // (unix time)
+  int range; // cm
+  float internalTemp; //Degrees Celsius
+  float internalPressure;
+  float internalHumidity;
+  float soc; //percentage
+  float voltage;
+  float rssi;
+
+};
+
+struct Report {
+  int schemaVersion;
+  int firmwareVersion;
+  char deviceId[24];
+  int nextUpdateTime; // (unix time);
+  Reading readings[10];
+
+};
+
+
 void publishSVPA();
 
-#endif
+void saveNewReading(Reading);
+
+int getSchemaVersion();

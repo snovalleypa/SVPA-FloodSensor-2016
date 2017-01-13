@@ -6,7 +6,7 @@
 #include "publishSVPA.h"
 
 const int schemaVersion = 1;
-
+/*
 struct Reading {
   int timeStamp; // (unix time)
   int range; // cm
@@ -22,11 +22,15 @@ struct Reading {
 struct Report {
   int schemaVersion;
   int firmwareVersion;
-  String deviceId;
+  char deviceId[24];
   int nextUpdateTime; // (unix time);
   Reading readings[10];
 
 };
+*/
+
+retained Reading lastReadings[10];
+
 
 /*
 {
@@ -74,4 +78,16 @@ void publishSVPA(){
 
   Particle.publish("SVPA:",reportJSON);
 
+}
+
+void saveNewReading(Reading newReading){
+  for(int i=9; i=1; i--){
+    lastReadings[i] = lastReadings[i-1];
+  }
+  lastReadings[0] = newReading;
+
+}
+
+int getSchemaVersion(){
+  return schemaVersion;
 }

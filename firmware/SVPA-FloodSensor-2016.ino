@@ -12,7 +12,7 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(8);
+PRODUCT_VERSION(8); //Remember to update const below
 
 
 /******************************************************************************
@@ -23,12 +23,18 @@ PRODUCT_VERSION(8);
 #include "checkUpdateOTA.h"
 #include "publishSVPA.h"
 
+const int firmwareVersion = 8;
+
 double humidity = 0;
 double tempf = 0;
+double tempC = 0;
 double pascals = 0;
 double baroTemp = 0;
 double altf = 0;
 
+Reading currentReading;
+
+Report currentReport;
 
 //#include "SparkFunMAX17043/SparkFunMAX17043.h" // Include the SparkFun MAX17043 library
 
@@ -158,6 +164,24 @@ void publishData(){
     getVoltage();
 
 
+    currentReading.timeStamp = Time.now();
+    currentReading.range = rangValue;
+    currentReading.internalTemp = Time.now();
+    currentReading.internalPressure = pascals;
+    currentReading.internalHumidity = humidity;
+    currentReading.soc = soc;
+    currentReading.voltage = voltage;
+    currentReading.rssi = tempC;
+
+
+
+    currentReport.schemaVersion = getSchemaVersion();
+    currentReport.firmwareVersion = firmwareVersion;
+    String strDeviceID = System.deviceID();
+    strDeviceID.toCharArray(currentReport.deviceId, 24);
+    currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
+
+
 
     publishRSSI();
 
@@ -206,6 +230,7 @@ void getWeather()
 
   // Measure Temperature from the HTU21D or Si7021
   tempf = weatherShield.getTempF();
+  tempC = (tempf - 32) * 5 / 9;
   // Temperature is measured every time RH is requested.
   // It is faster, therefore, to read it from previous RH
   // measurement with getTemp() instead with readTemp()

@@ -57,6 +57,72 @@ retained Reading lastReadings[10];
 
 */
 
+
+
+void saveNewReading(Reading newReading){
+  for(int i=9; i=1; i--){
+    lastReadings[i] = lastReadings[i-1];
+  }
+  lastReadings[0] = newReading;
+
+}
+
+int getSchemaVersion(){
+  return schemaVersion;
+}
+
+String getJSON(Report newReport){
+  String myJSON = "{";
+  myJSON.concat("\"schemaVersion\":\"");
+  myJSON.concat(String(newReport.schemaVersion));
+  myJSON.concat("\",");
+  myJSON.concat("\"firmwareVersion\":\"");
+  myJSON.concat(String(newReport.firmwareVersion));
+  myJSON.concat("\",");
+  myJSON.concat("\"deviceId\":\"");
+  myJSON.concat(String(newReport.deviceId));
+  myJSON.concat("\",");
+  myJSON.concat("\"nextUpdateTime\":\"");
+  myJSON.concat(String(newReport.nextUpdateTime));
+  myJSON.concat("\"");
+  myJSON.concat("}");
+  return myJSON;
+}
+
+String getJSON(Reading newReading){
+  String myJSON = "{";
+  myJSON.concat("\"timeStamp\":\"");
+  myJSON.concat(String(newReading.timeStamp));
+  myJSON.concat("\",");
+  myJSON.concat("\"range\":\"");
+  myJSON.concat(String(newReading.range));
+  myJSON.concat("\",");
+  myJSON.concat("\"internalTemp\":\"");
+  myJSON.concat(String(newReading.internalTemp));
+  myJSON.concat("\",");
+  myJSON.concat("\"internalPressure\":\"");
+  myJSON.concat(String(newReading.internalPressure));
+  myJSON.concat("\"");
+  myJSON.concat(",");
+  myJSON.concat("\"internalHumidity\":\"");
+  myJSON.concat(String(newReading.internalHumidity));
+  myJSON.concat("\"");
+  myJSON.concat(",");
+  myJSON.concat("\"soc\":\"");
+  myJSON.concat(String(newReading.soc));
+  myJSON.concat("\"");
+  myJSON.concat(",");
+  myJSON.concat("\"voltage\":\"");
+  myJSON.concat(String(newReading.voltage));
+  myJSON.concat("\"");
+  myJSON.concat(",");
+  myJSON.concat("\"rssi\":\"");
+  myJSON.concat(String(newReading.rssi));
+  myJSON.concat("\"");
+  myJSON.concat("}");
+  return myJSON;
+}
+
 void publishSVPA(){
   String reportJSON =     "{"
       "\"schemaVersion\":\"1\","
@@ -78,16 +144,4 @@ void publishSVPA(){
 
   Particle.publish("SVPA:",reportJSON);
 
-}
-
-void saveNewReading(Reading newReading){
-  for(int i=9; i=1; i--){
-    lastReadings[i] = lastReadings[i-1];
-  }
-  lastReadings[0] = newReading;
-
-}
-
-int getSchemaVersion(){
-  return schemaVersion;
 }

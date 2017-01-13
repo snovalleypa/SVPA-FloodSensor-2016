@@ -24,6 +24,7 @@ PRODUCT_VERSION(8); //Remember to update const below
 #include "publishSVPA.h"
 
 const int firmwareVersion = 8;
+const int debugLevel = 1;
 
 double humidity = 0;
 double tempf = 0;
@@ -166,12 +167,13 @@ void publishData(){
 
     currentReading.timeStamp = Time.now();
     currentReading.range = rangValue;
-    currentReading.internalTemp = Time.now();
+    currentReading.internalTemp = tempC;
     currentReading.internalPressure = pascals;
     currentReading.internalHumidity = humidity;
     currentReading.soc = soc;
     currentReading.voltage = voltage;
-    currentReading.rssi = tempC;
+    CellularSignal sig = Cellular.RSSI();
+    currentReading.rssi = sig.rssi;
 
 
 
@@ -182,7 +184,6 @@ void publishData(){
     currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
 
 
-
     publishRSSI();
 
     publishWeather();
@@ -191,8 +192,9 @@ void publishData(){
 
     publishVoltage();
 
-    publishSVPA();
-
+    publishDebug(getJSON(currentReport));
+    delay(1000);
+    publishDebug(getJSON(currentReading));
 
     digitalWrite(led2, LOW);
 
@@ -335,5 +337,13 @@ void publishRSSI() {
     //Serial.print(myRSSI);
 
     Particle.publish("RSSI", String(myRSSI));
+
+}
+
+void publishDebug(String debugString){
+  if(debugLevel>=1){
+    Particle.publish("debug", debugString);
+  }
+
 
 }

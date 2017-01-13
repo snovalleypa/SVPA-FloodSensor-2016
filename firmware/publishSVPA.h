@@ -19,7 +19,7 @@ struct Reading {
   float internalHumidity;
   float soc; //percentage
   float voltage;
-  float rssi;
+  int rssi;
 
 };
 
@@ -33,8 +33,12 @@ struct Report {
 };
 
 
-void publishSVPA();
 
 void saveNewReading(Reading);
 
 int getSchemaVersion();
+
+String getJSON(Report newReport);
+String getJSON(Reading newReading);
+
+void publishSVPA();

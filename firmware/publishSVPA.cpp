@@ -145,3 +145,7 @@ void publishSVPA(){
   Particle.publish("SVPA:",reportJSON);
 
 }
+
+void publishReading(Reading theReading){
+    Particle.publish("Reading", getJSON(theReading));
+}

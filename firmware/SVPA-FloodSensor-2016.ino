@@ -182,11 +182,12 @@ void publishData(){
     String strDeviceID = System.deviceID();
     strDeviceID.toCharArray(currentReport.deviceId, 24);
     currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
+    currentReport.readings[0] = currentReading;
 
 
-    publishRSSI();
+    //publishRSSI();
 
-    publishWeather();
+    //publishWeather();
 
     publishRange();
 
@@ -194,7 +195,7 @@ void publishData(){
 
     publishDebug(getJSON(currentReport));
     delay(1000);
-    publishDebug(getJSON(currentReading));
+    publishReading(currentReading);
 
     digitalWrite(led2, LOW);
 
@@ -339,6 +340,8 @@ void publishRSSI() {
     Particle.publish("RSSI", String(myRSSI));
 
 }
+
+
 
 void publishDebug(String debugString){
   if(debugLevel>=1){

@@ -42,3 +42,5 @@ String getJSON(Report newReport);
 String getJSON(Reading newReading);
 
 void publishSVPA();
+
+void publishReading(Reading theReading);

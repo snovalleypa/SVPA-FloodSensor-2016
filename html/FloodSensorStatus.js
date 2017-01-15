@@ -6,6 +6,8 @@
 
 var socBaseURL = "https://data.sparkfun.com/output/9JN3JagnELSWrOQvXVN0?grep[source]=";
 var rangeBaseURL = "https://data.sparkfun.com/output/n1EQXJJb6mUzDLV52dN5?grep[source]=";
+var readingBaseURL = "https://data.sparkfun.com/output/DJRQXRM3l1fznqO64VdA?grep[source]=";
+
 var plotDataURL = "";
 
 var graphWidth = 960;
@@ -116,7 +118,7 @@ console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
                 + graphStartDate.getUTCFullYear()
   console.log( "timeFilter: " + timeFilter);
 
-plotDataURL = socBaseURL + graph + timeFilter
+plotDataURL = socBaseURL + graph + timeFilter;
 
 
 function plotSensorData(url, lineColor){
@@ -158,7 +160,7 @@ function plotSensorData(url, lineColor){
 plotSensorData(plotDataURL, "#4682B4");
 
 graph = "330048000d47343233323032";
-plotDataURL = socBaseURL + graph + timeFilter
+plotDataURL = socBaseURL + graph + timeFilter;
 plotSensorData(plotDataURL, "#B22222");
 
 console.log("done with FloodSensorStatus.js");

@@ -56,6 +56,28 @@ d3.csv("Devices.csv", function(devices) {
             .attr("class", ("DeviceID"));
 
   devicePara.append("span").text(", ");
+  devicePara.append("span")
+            .text(function(d) {return ("v"+d.FirmwareVersion)})
+            .attr("id", (function(d) {
+                return (d.DeviceName+"-FirmwareVersion")
+              })
+            )
+            .attr("class", ("DeviceID"));
+
+  devicePara.append("span").text(", ");
+  devicePara.append("a")
+            .text("Readings ")
+            .attr("id", (function(d) {
+                return (d.DeviceName+"-ReadingURL")
+              })
+            )
+            .attr("href", function(d) {
+               var readingURL = readingBaseURL + d.DeviceID;
+               d.readingURL = readingURL;
+              return readingURL;
+                      });
+
+  devicePara.append("span").text(", ");
   devicePara.append("a")
             .text("soc ")
             .attr("id", (function(d) {

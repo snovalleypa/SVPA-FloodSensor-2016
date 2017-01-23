@@ -11,8 +11,6 @@
   http://www.maxbotix.com/documents/I2CXL-MaxSonar-WR_Datasheet.pdf
 
 *******************************************************************************/
-
-// Only include the SVPA PRODUCT_ID & PRODUCT_VERSION if compiling for an Electron
 PRODUCT_ID(2631);
 PRODUCT_VERSION(2);
 
@@ -22,15 +20,23 @@ PRODUCT_VERSION(2);
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
 #include "checkUpdateOTA.h"
+#include "publishSVPA.h"
+
+const int firmwareVersion = 8;
+const int debugLevel = 1;
 
 #include "SparkFunMAX17043.h"
 
 double humidity = 0;
 double tempf = 0;
+double tempC = 0;
 double pascals = 0;
 double baroTemp = 0;
 double altf = 0;
 
+Reading currentReading;
+
+Report currentReport;
 double voltage = 0;
 double soc = 0;
 bool alert;
@@ -164,15 +170,40 @@ void publishData(){
     getVoltage();
 
 
+    currentReading.timeStamp = Time.now();
+    currentReading.range = rangValue;
+    currentReading.internalTemp = tempC;
+    currentReading.internalPressure = pascals;
+    currentReading.internalHumidity = humidity;
+    currentReading.soc = soc;
+    currentReading.voltage = voltage;
+    /* For Electron
+    CellularSignal sig = Cellular.RSSI();
+    currentReading.rssi = sig.rssi;
+    */
+    currentReading.rssi = WiFi.RSSI();
 
-    publishRSSI();
 
-    publishWeather();
+
+    currentReport.schemaVersion = getSchemaVersion();
+    currentReport.firmwareVersion = firmwareVersion;
+    String strDeviceID = System.deviceID();
+    strDeviceID.toCharArray(currentReport.deviceId, 24);
+    currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
+    currentReport.readings[0] = currentReading;
+
+
+    //publishRSSI();
+
+    //publishWeather();
 
     publishRange();
 
     publishVoltage();
 
+    publishDebug(getJSON(currentReport));
+    delay(1000);
+    publishReading(currentReading);
 
     digitalWrite(led2, LOW);
 
@@ -210,6 +241,7 @@ void getWeather()
 
   // Measure Temperature from the HTU21D or Si7021
   tempf = weatherShield.getTempF();
+  tempC = (tempf - 32) * 5 / 9;
   // Temperature is measured every time RH is requested.
   // It is faster, therefore, to read it from previous RH
   // measurement with getTemp() instead with readTemp()
@@ -307,5 +339,15 @@ void publishRSSI() {
     //Serial.print(myRSSI);
 
     Particle.publish("RSSI", String(myRSSI));
+
+}
+
+
+
+void publishDebug(String debugString){
+  if(debugLevel>=1){
+    Particle.publish("debug", debugString);
+  }
+
 
 }

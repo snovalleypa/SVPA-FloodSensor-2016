@@ -6,11 +6,9 @@
 
 var socBaseURL = "https://data.sparkfun.com/output/9JN3JagnELSWrOQvXVN0?grep[source]=";
 var rangeBaseURL = "https://data.sparkfun.com/output/n1EQXJJb6mUzDLV52dN5?grep[source]=";
-<<<<<<< HEAD
-var rangeURL = "";
-=======
+var readingBaseURL = "https://data.sparkfun.com/output/DJRQXRM3l1fznqO64VdA?grep[source]=";
+
 var plotDataURL = "";
->>>>>>> 2ab8449aa2e6cfb05eb53ccc004f995dc50ae0eb
 
 var graphWidth = 960;
 var graphHeight = 500;
@@ -21,11 +19,7 @@ var margin = {top: 20, right: 20, bottom: 75, left: 50},
 var graphTimeOffset = -500; //hours
 var currentTZ = "local";
 
-<<<<<<< HEAD
-var graphDeviceID = "380054000c51343334363138";
-=======
 var graph = "380054000c51343334363138";
->>>>>>> 2ab8449aa2e6cfb05eb53ccc004f995dc50ae0eb
 
 var x = d3.scaleTime()
     .rangeRound([0, width]);
@@ -116,14 +110,7 @@ var yAxisArea = plotArea.append("g")
 
 
 
-<<<<<<< HEAD
-  console.log("socURL @ SOC CSV call");
-  console.log(socURL);
-
-  console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
-=======
 console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
->>>>>>> 2ab8449aa2e6cfb05eb53ccc004f995dc50ae0eb
 
   var timeFilter = "&gte[timestamp]="
                 + (graphStartDate.getUTCMonth()+1) + "-"
@@ -131,48 +118,7 @@ console.log( "graphStartDate.getUTCDay(): " + graphStartDate.getUTCDate());
                 + graphStartDate.getUTCFullYear()
   console.log( "timeFilter: " + timeFilter);
 
-<<<<<<< HEAD
-d3.csv(socBaseURL + graphDeviceID + timeFilter,
-      function(d) {
-          d.timestamp = parseDate(d.timestamp);
-          d.soc = +d.soc;
-          return d;
-        },
-      function(error, socData) {
-        if (error) throw error;
-        // **** Build State of Charge graph ****
-
-/*        for (socDataPoint of socData) {
-          console.log("socDataPoint");
-          console.log(socDataPoint.timestamp);
-
-          socDataPoint.timestamp = d3.timeParse(socDataPoint.timestamp);
-          socDataPoint.soc = +socDataPoint.soc;
-        }
-*/
-        console.log("socData after timeParse");
-        console.log(socData);
-
-        var socPath = socLine(socData);
-        //console.log("socPath");
-        //console.log(socPath);
-
-
-        plotArea.append("path")
-          .datum(socData)
-          .attr("class", "line")
-          .attr("d", socPath);
-
-      })
-      .on("progress", function(p){
-        //update progress bar
-        console.log("Loading:" + p);
-      })
-      ;
-//    }
-//});
-=======
-plotDataURL = socBaseURL + graph + timeFilter
+plotDataURL = socBaseURL + graph + timeFilter;
 
 
 function plotSensorData(url, lineColor){
@@ -211,11 +157,10 @@ function plotSensorData(url, lineColor){
         ;
   }
 
-plotSensorData(plotDataURL, "#4682B4"); 
->>>>>>> 2ab8449aa2e6cfb05eb53ccc004f995dc50ae0eb
+plotSensorData(plotDataURL, "#4682B4");
 
-graph = "210022000c51343334363138";
-plotDataURL = socBaseURL + graph + timeFilter
+graph = "330048000d47343233323032";
+plotDataURL = socBaseURL + graph + timeFilter;
 plotSensorData(plotDataURL, "#B22222");
 
 console.log("done with FloodSensorStatus.js");

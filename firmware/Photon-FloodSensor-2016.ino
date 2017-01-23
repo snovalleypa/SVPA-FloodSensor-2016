@@ -11,9 +11,8 @@
   http://www.maxbotix.com/documents/I2CXL-MaxSonar-WR_Datasheet.pdf
 
 *******************************************************************************/
-PRODUCT_ID(1623);
-PRODUCT_VERSION(8); //Remember to update const below
-
+PRODUCT_ID(2631);
+PRODUCT_VERSION(2);
 
 /******************************************************************************
   Basic SparkFun Photon Weather Shield
@@ -26,6 +25,8 @@ PRODUCT_VERSION(8); //Remember to update const below
 const int firmwareVersion = 8;
 const int debugLevel = 1;
 
+#include "SparkFunMAX17043.h"
+
 double humidity = 0;
 double tempf = 0;
 double tempC = 0;
@@ -36,9 +37,6 @@ double altf = 0;
 Reading currentReading;
 
 Report currentReport;
-
-//#include "SparkFunMAX17043/SparkFunMAX17043.h" // Include the SparkFun MAX17043 library
-
 double voltage = 0;
 double soc = 0;
 bool alert;
@@ -66,19 +64,15 @@ int rangValue = 0;
 
 int led2 = D7; // Instead of writing D7 over and over again, we'll write led2
 
-FuelGauge fuel; // instantiate a FuelGauge object for use monitoring the battery
 
 //---------------------------------------------------------------
 void setup()
 {
-    /* Commenting out so as to not use up GSM Data
-    // Create Particle.variables for each piece of data for easy access
-    Particle.variable("humidity", humidity);
-    Particle.variable("tempF", tempf);
-    Particle.variable("pressurePascals", pascals);
-    Particle.variable("baroTemp", baroTemp);
-    Particle.variable("range", rangValue);
-    */
+
+    //@TODO Comment this publish event, once done debugging
+    Particle.publish("Awake:",
+    "This unit just woke up and is running setup()"
+    );
 
     //Initialize the I2C sensors and ping them
     weatherShield.begin();
@@ -102,6 +96,17 @@ void setup()
 
 
     weatherShield.enableEventFlags(); //Necessary register calls to enble temp, baro and alt
+
+    // Set up the MAX17043 LiPo fuel gauge:
+    lipo.begin(); // Initialize the MAX17043 LiPo fuel gauge
+
+    // Quick start restarts the MAX17043 in hopes of getting a more accurate
+    // guess for the SOC.
+    lipo.quickStart();
+
+    // We can set an interrupt to alert when the battery SoC gets too low.
+    // We can alert at anywhere between 1% - 32%:
+    lipo.setThreshold(10); // Set alert threshold to 10%.
 
     pinMode(led2, OUTPUT);
 
@@ -172,8 +177,11 @@ void publishData(){
     currentReading.internalHumidity = humidity;
     currentReading.soc = soc;
     currentReading.voltage = voltage;
+    /* For Electron
     CellularSignal sig = Cellular.RSSI();
     currentReading.rssi = sig.rssi;
+    */
+    currentReading.rssi = WiFi.RSSI();
 
 
 
@@ -300,39 +308,32 @@ uint16_t requestRange(){
 }
 
 void getVoltage () {
-    // fuel.getVCell() Returns the battery voltage as a float
-	voltage = fuel.getVCell();
-	// fuel.getSoC() returns the estimated state of charge (e.g. 79%)
-	soc = fuel.getSoC();
-	// fuel.getAlert() returns a 0 or 1 (0=alert not triggered)
-	alert = fuel.getAlert();
-
-
+  // lipo.getVoltage() returns a voltage value (e.g. 3.93)
+  voltage = lipo.getVoltage();
+  // lipo.getSOC() returns the estimated state of charge (e.g. 79%)
+  soc = lipo.getSOC();
+  // lipo.getAlert() returns a 0 or 1 (0=alert not triggered)
+  alert = lipo.getAlert();
 }
 
 void publishVoltage() {
 
-    // fuel.getVoltage() returns a voltage value (e.g. 3.93)
-	voltage = fuel.getVCell();
-	// fuel.getSOC() returns the estimated state of charge (e.g. 79%)
-	soc = fuel.getSoC();
-	// lipo.getAlert() returns a 0 or 1 (0=alert not triggered)
-	alert = fuel.getAlert();
-
-    Particle.publish("voltage", String(voltage));
-    Particle.publish("soc", String(soc));
-    if (alert) {
-        char resultstr[64]; //String to store the alret data
-        sprintf(resultstr, "{\"voltage\":%d,\"soc\":%d}", voltage, soc); //Write sensor data to string
-        Particle.publish("batteryAlert", resultstr);
-    }
-
-
+  if (voltage == 0){
+    getVoltage ();
+  }
+  Particle.publish("voltage", String(voltage));
+  Particle.publish("soc", String(soc));
+  if (alert) {
+      char resultstr[64]; //String to store the alret data
+      sprintf(resultstr, "{\"voltage\":%d,\"soc\":%d}", voltage, soc); //Write sensor data to string
+      Particle.publish("batteryAlert", resultstr);
+  }
 }
 
 void publishRSSI() {
 
-    CellularSignal myRSSI = Cellular.RSSI();
+    //CellularSignal myRSSI = Cellular.RSSI();
+    int myRSSI = WiFi.RSSI();
 
     //Serial.print("  RSSI = ");
     //Serial.print(myRSSI);

@@ -9,7 +9,7 @@ STARTUP(System.enableFeature(FEATURE_RETAINED_MEMORY));
 
 retained int nextUpdateCheck;
 int updateDelayOTA = 60000; //miliseconds, aka 1 minute
-int updateCadanceOTA = 25; //hours, aka once per day
+int updateCadanceOTA = 6; //hours, aka once per day
 
 
 int runTimeAdjSec = -10; // adjustment time from wake-up to publish

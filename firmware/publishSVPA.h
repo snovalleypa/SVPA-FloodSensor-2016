@@ -36,6 +36,8 @@ struct Report {
 
 void saveNewReading(Reading);
 
+Reading getLastReading(int i);
+
 int getSchemaVersion();
 
 String getJSON(Report newReport);
@@ -44,3 +46,5 @@ String getJSON(Reading newReading);
 void publishSVPA();
 
 void publishReading(Reading theReading);
+
+void publishDebug(String debugString);

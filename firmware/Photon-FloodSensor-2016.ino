@@ -22,8 +22,7 @@ PRODUCT_VERSION(2);
 #include "checkUpdateOTA.h"
 #include "publishSVPA.h"
 
-const int firmwareVersion = 8;
-const int debugLevel = 1;
+const int firmwareVersion = 2;
 
 #include "SparkFunMAX17043.h"
 
@@ -183,14 +182,16 @@ void publishData(){
     */
     currentReading.rssi = WiFi.RSSI();
 
-
+    saveNewReading(currentReading);
 
     currentReport.schemaVersion = getSchemaVersion();
     currentReport.firmwareVersion = firmwareVersion;
     String strDeviceID = System.deviceID();
     strDeviceID.toCharArray(currentReport.deviceId, 24);
     currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
-    currentReport.readings[0] = currentReading;
+    for (int i=0; i<=10; i++){
+      currentReport.readings[i] =  getLastReading(i);
+    }
 
 
     //publishRSSI();
@@ -325,6 +326,7 @@ void publishVoltage() {
   Particle.publish("soc", String(soc));
   if (alert) {
       char resultstr[64]; //String to store the alret data
+      //@TODO Fix batteryAlert JSON String
       sprintf(resultstr, "{\"voltage\":%d,\"soc\":%d}", voltage, soc); //Write sensor data to string
       Particle.publish("batteryAlert", resultstr);
   }
@@ -339,15 +341,5 @@ void publishRSSI() {
     //Serial.print(myRSSI);
 
     Particle.publish("RSSI", String(myRSSI));
-
-}
-
-
-
-void publishDebug(String debugString){
-  if(debugLevel>=1){
-    Particle.publish("debug", debugString);
-  }
-
 
 }

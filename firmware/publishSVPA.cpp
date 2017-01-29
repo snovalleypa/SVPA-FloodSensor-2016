@@ -6,6 +6,8 @@
 #include "publishSVPA.h"
 
 const int schemaVersion = 1;
+const int debugLevel = 1;
+
 /*
 struct Reading {
   int timeStamp; // (unix time)
@@ -29,6 +31,7 @@ struct Report {
 };
 */
 
+retained int nextReadingIndex = 0;
 retained Reading lastReadings[10];
 
 
@@ -60,11 +63,16 @@ retained Reading lastReadings[10];
 
 
 void saveNewReading(Reading newReading){
-  for(int i=9; i=1; i--){
-    lastReadings[i] = lastReadings[i-1];
-  }
-  lastReadings[0] = newReading;
+  publishDebug("Saving new Reading...");
+  publishDebug(String("index=" + String(nextReadingIndex)));
+  lastReadings[nextReadingIndex] = newReading;
+  nextReadingIndex++;
+  if (nextReadingIndex > 10) nextReadingIndex = 0;
+}
 
+Reading getLastReading(int i){
+  //@TODO reference index into circular array starting at nextReadingIndex
+  return lastReadings[i];
 }
 
 int getSchemaVersion(){
@@ -85,6 +93,19 @@ String getJSON(Report newReport){
   myJSON.concat("\"nextUpdateTime\":\"");
   myJSON.concat(String(newReport.nextUpdateTime));
   myJSON.concat("\"");
+  myJSON.concat("\",");
+  myJSON.concat("\"readings\":");
+  myJSON.concat("[");
+    // .concat readings 0 through 10
+    for (int i=0; i <= 9; i++){
+      myJSON.concat(getJSON(newReport.readings[i]));
+      //@TODO add camas in JSON Array
+      myJSON.concat("\",");
+    }
+    myJSON.concat(getJSON(newReport.readings[10]));
+
+  myJSON.concat("]");
+
   myJSON.concat("}");
   return myJSON;
 }
@@ -142,10 +163,23 @@ void publishSVPA(){
       "}"
       ;
 
+
   Particle.publish("SVPA:",reportJSON);
 
 }
 
 void publishReading(Reading theReading){
     Particle.publish("Reading", getJSON(theReading));
+}
+
+void publishDebug(String debugString){
+  if(debugLevel>=1){
+    if(debugString.length()<=250){
+      Particle.publish("debug", debugString);
+    } else {
+      Particle.publish("debug", debugString.substring(0, 250));
+      delay(2000);
+      publishDebug(debugString.substring(250));
+    }
+  }
 }

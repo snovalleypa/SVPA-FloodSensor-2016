@@ -202,9 +202,11 @@ void publishData(){
 
     publishVoltage();
 
-    publishDebug(getJSON(currentReport));
-    delay(1000);
+    //publishDebug(getJSON(currentReport));
+    //delay(1000);
     publishReading(currentReading);
+
+    int pushReportResult = pushReport(currentReport);
 
     digitalWrite(led2, LOW);
 

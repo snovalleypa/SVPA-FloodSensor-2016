@@ -23,7 +23,7 @@ PRODUCT_VERSION(9); //Remember to update const below
 #include "checkUpdateOTA.h"
 #include "publishSVPA.h"
 
-const int firmwareVersion = 8;
+const int firmwareVersion = 9;
 const int debugLevel = 1;
 
 double humidity = 0;

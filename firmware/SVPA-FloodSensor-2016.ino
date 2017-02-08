@@ -105,45 +105,46 @@ void setup()
 
     pinMode(led2, OUTPUT);
 
-    publishData();
-
-    //delay(30000); // Wait for any over the air updates.
-
-    digitalWrite(led2, HIGH);
-    delay(500);
-    digitalWrite(led2, LOW);
-    delay(500);
-    digitalWrite(led2, HIGH);
-    delay(500);
-    digitalWrite(led2, LOW);
-    delay(500);
-    digitalWrite(led2, HIGH);
-    delay(1000);
-    digitalWrite(led2, LOW);
-
-    checkUpdateOTA();
-
-
-    //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
-    int sleepSec = getSecUntilPublish();
-
-    //@TODO Comment this publish event, once done debugging
-    Particle.publish("Sleeping:",
-      "Going to sleep for: " + String(sleepSec) + " seconds."
-      );
-
-    delay(2000); // to allow last events to reach the cloud
-
-    System.sleep(SLEEP_MODE_DEEP,sleepSec); //shut down for 20 minutes
-
-
-
 }
 //---------------------------------------------------------------
 void loop()
 {
 
-    publishData();
+  publishData();
+
+  //delay(30000); // Wait for any over the air updates.
+
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(1000);
+  digitalWrite(led2, LOW);
+
+  checkUpdateOTA();
+
+
+  //System.sleep(SLEEP_MODE_DEEP,120); //shut down for 2 minutes
+  int sleepSec = getSecUntilPublish();
+
+  //@TODO Comment this publish event, once done debugging
+  Particle.publish("Sleeping:",
+    "Going to sleep for: " + String(sleepSec) + " seconds."
+    );
+
+  delay(2000); // to allow last events to reach the cloud
+
+  System.sleep(SLEEP_MODE_DEEP,sleepSec); //shut down for 20 minutes
+/****************************************************************************
+****************** System sleeps and resets.                *****************
+*****************************************************************************
+****************** The following code should never execute. *****************
+*****************************************************************************/
 
     delay(10000);
 
@@ -183,6 +184,9 @@ void publishData(){
     strDeviceID.toCharArray(currentReport.deviceId, 24);
     currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
     currentReport.readings[0] = currentReading;
+    for (int i=0; i<=10; i++){
+      currentReport.readings[i] =  getLastReading(i);
+    }
 
 
     //publishRSSI();
@@ -193,9 +197,11 @@ void publishData(){
 
     publishVoltage();
 
-    publishDebug(getJSON(currentReport));
-    delay(1000);
+    //publishDebug(getJSON(currentReport));
+    //delay(1000);
     publishReading(currentReading);
+
+    int pushReportResult = pushReport(currentReport);
 
     digitalWrite(led2, LOW);
 
@@ -338,15 +344,5 @@ void publishRSSI() {
     //Serial.print(myRSSI);
 
     Particle.publish("RSSI", String(myRSSI));
-
-}
-
-
-
-void publishDebug(String debugString){
-  if(debugLevel>=1){
-    Particle.publish("debug", debugString);
-  }
-
 
 }

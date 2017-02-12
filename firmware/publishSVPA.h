@@ -1,5 +1,5 @@
 /******************************************************************************
-  2016 SVPA Flood Sensor Prototype Firmware
+  2017 SVPA Flood Sensor Prototype Firmware
   by Tom Sayles <TSayles@Soot-n-Smoke.com>
 
 *******************************************************************************/
@@ -36,6 +36,8 @@ struct Report {
 
 void saveNewReading(Reading);
 
+Reading getLastReading(int i);
+
 int getSchemaVersion();
 
 String getJSON(Report newReport);
@@ -44,3 +46,7 @@ String getJSON(Reading newReading);
 void publishSVPA();
 
 void publishReading(Reading theReading);
+
+void publishDebug(String debugString);
+
+int pushReport(Report newReport);

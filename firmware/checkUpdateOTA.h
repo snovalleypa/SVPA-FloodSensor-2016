@@ -11,5 +11,6 @@
 
 void checkUpdateOTA();
 long getSecUntilPublish();
+long getNextUpdateCheck();
 
 #endif

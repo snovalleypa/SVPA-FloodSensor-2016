@@ -12,7 +12,7 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(9); //Remember to update const below
+PRODUCT_VERSION(10); //Remember to update const below
 
 
 /******************************************************************************
@@ -23,7 +23,7 @@ PRODUCT_VERSION(9); //Remember to update const below
 #include "checkUpdateOTA.h"
 #include "publishSVPA.h"
 
-const int firmwareVersion = 9;
+const int firmwareVersion = 10;
 const int debugLevel = 1;
 
 double humidity = 0;
@@ -176,13 +176,13 @@ void publishData(){
     CellularSignal sig = Cellular.RSSI();
     currentReading.rssi = sig.rssi;
 
-
+    saveNewReading(currentReading);
 
     currentReport.schemaVersion = getSchemaVersion();
     currentReport.firmwareVersion = firmwareVersion;
     String strDeviceID = System.deviceID();
     strDeviceID.toCharArray(currentReport.deviceId, 24);
-    currentReport.nextUpdateTime = getSecUntilPublish() + Time.now();
+    currentReport.nextUpdateTime = getNextUpdateCheck();
     currentReport.readings[0] = currentReading;
     for (int i=0; i<=10; i++){
       currentReport.readings[i] =  getLastReading(i);

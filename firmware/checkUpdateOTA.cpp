@@ -112,3 +112,7 @@ long getSecUntilPublish(){
 
   return secUntilPublish;
 };
+
+long getNextUpdateCheck(){  
+  return nextUpdateCheck;
+}

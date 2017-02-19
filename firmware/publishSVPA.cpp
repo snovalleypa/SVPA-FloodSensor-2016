@@ -188,13 +188,14 @@ void publishDebug(String debugString){
 }
 
 int pushReport(Report newReport){
-  String putJSON = getJSON(newReport);
+  String putJSON;
+   putJSON.reserve(2048);
+   putJSON = getJSON(newReport);
 
   publishDebug(String("targetServer=" + targetServer));
-  delay(1000);
 
   /*
-  // Local Network debugging
+  // Local Network debugging for Photon version
   byte targetIP[] = {192, 168, 11, 36};
   targetServer = "ProlCat";
   port = 2129;
@@ -210,10 +211,8 @@ int pushReport(Report newReport){
   delay(1000);
 
   if (client.connect(targetServer, port))
-  //if (client.connect(targetIP, port))
+  //if (client.connect(targetIP, port)) //for Photon version
   {
-     // "PUT /api/newdeveloper/lights/3/state HTTP/1.1"
-     //String putRequest = "PUT ";
      String pushRequest = "POST ";
       pushRequest.concat(targetResource);
       pushRequest.concat("  HTTP/1.1");
@@ -229,28 +228,50 @@ int pushReport(Report newReport){
       pushRequest.concat("Content-Length:  ");
       pushRequest.concat(String(putJSON.length()));
 
+    publishDebug(String("pushRequest=" + pushRequest));
+    //publishDebug(String("putJSON=" + putJSON));
+
     client.println(pushRequest);
     client.println();
-    client.println(putJSON);
+
+    //int pushBytes = client.println(putJSON);
+    int pushBytes;
+
+    if(putJSON.length()<=1023){
+      pushBytes = client.println(putJSON);
+    } else if(putJSON.length()<=2047){
+      pushBytes = client.print(putJSON.substring(0,1023));
+      pushBytes = pushBytes + client.print(putJSON.substring(1023));
+    }
+
+    delay(500);
     client.println();
     client.println();
 
-    publishDebug(String("pushRequest=" + pushRequest));
-    delay(10000);
+    publishDebug(String("pushbytes=" + String(pushBytes)));
+
+    delay(5000);
 
     publishDebug(String("client.available=" + String(client.available())));
 
     String pushResponse = "";
     char nextResponseChar;
+    int bytesRead = 0;
 
     while (client.available())
       {
         nextResponseChar = client.read();
+        bytesRead++;
         pushResponse.concat(nextResponseChar);
         delay(15);
+        if (pushResponse.length() > 254){
+            publishDebug(String("pushResponse=" + pushResponse));
+            pushResponse = "";
+        }
       }
 
     publishDebug(String("pushResponse=" + pushResponse));
+    publishDebug(String("bytesRead=" + String(bytesRead)));
 
     return 0;
   }

@@ -11,6 +11,10 @@
 
 #endif
 
-String targetServer = "mpzap.com";
+//String targetServer = "mpzap.com";
 int port = 80;
-String targetResource = "/post.php";
+//String targetResource = "/post.php";
+
+//https://aijspdp2yi.execute-api.us-west-2.amazonaws.com/beta/sensor-observation
+String targetServer = "aijspdp2yi.execute-api.us-west-2.amazonaws.com";
+String targetResource = "beta/sensor-observation";

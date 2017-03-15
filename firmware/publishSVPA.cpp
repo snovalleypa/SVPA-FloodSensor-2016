@@ -93,9 +93,8 @@ String getJSON(Report newReport){
   myJSON.concat("\"deviceId\":\"");
   myJSON.concat(String(newReport.deviceId));
   myJSON.concat("\",");
-  myJSON.concat("\"nextUpdateTime\":\"");
+  myJSON.concat("\"nextUpdateTime\":");
   myJSON.concat(String(newReport.nextUpdateTime));
-  myJSON.concat("\"");
   myJSON.concat(",");
   myJSON.concat("\"readings\":");
   myJSON.concat("[");
@@ -115,9 +114,9 @@ String getJSON(Report newReport){
 
 String getJSON(Reading newReading){
   String myJSON = "{";
-  myJSON.concat("\"timeStamp\":\"");
+  myJSON.concat("\"timeStamp\":");
   myJSON.concat(String(newReading.timeStamp));
-  myJSON.concat("\",");
+  myJSON.concat(",");
   myJSON.concat("\"range\":\"");
   myJSON.concat(String(newReading.range));
   myJSON.concat("\",");

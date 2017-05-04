@@ -12,7 +12,7 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(11); //Remember to update const below
+PRODUCT_VERSION(12); //Remember to update const below
 
 
 /******************************************************************************

@@ -63,6 +63,7 @@ Weather weatherShield;
 #define ChangeAddressCommand2 byte(0xA5)
 
 int rangValue = 0;
+int rangeRep = 30; // Number of range readings to take and average.
 
 int led2 = D7; // Instead of writing D7 over and over again, we'll write led2
 
@@ -257,6 +258,58 @@ void getWeather()
   altf = weatherShield.readAltitudeFt();
 }
 
+void getRange() {
+
+    int rangeReadingIndex;
+    int rangeReading[rangeRep];
+    uint16_t range;
+    int rangeSum = 0;
+    int rangeCount,rangeMax;
+    float rangeAvg;
+    for (int i=0; i<=rangeRep; i++){
+      //currentReport.readings[i] =  getLastReading(i);
+
+      takeRangeReading();
+      //Tell the sensor to perform a ranging cycle
+      delay(100);
+      //Wait for sensor to finish
+      range = requestRange();
+      //Get the range from the sensor
+
+      rangeReading[i] = range;
+
+      // @TODO Add debugging feedback. LEDs?
+      Serial.print("Range String - ");
+      Serial.println(String(i));
+      Serial.print(": ");
+      Serial.println(String(rangeReading[i]));
+      //Print to the user
+
+      delay(500);
+    }
+
+    // @TODO Screen for outliers and compute the average range.
+
+    rangeMax = 0;
+    rangeSum = 0;
+    for (int i=0; i<=rangeRep; i++){
+      rangeSum = rangeSum + rangeReading[i];
+      if (range > rangeMax) {rangeMax = rangeReading[i];};
+
+
+    }
+    rangeAvg = rangeSum / rangeRep;  //update the online range varable
+
+    Serial.print("Range Average: "); Serial.println(String(rangeAvg));
+    //Print to the user
+    Serial.print("Range Max: "); Serial.println(String(rangeMax));
+    //Print to the user
+
+    //rangValue = (int) rangeAvg;
+    rangValue = rangeMax;
+
+}
+
 void takeRangeReading(){
     Wire.beginTransmission(SensorAddress);
     //Start addressing
@@ -264,24 +317,6 @@ void takeRangeReading(){
     //send range command
     Wire.endTransmission();
     //Stop and do something else now
-}
-
-void getRange() {
-
-
-    takeRangeReading();
-    //Tell the sensor to perform a ranging cycle
-    delay(100);
-    //Wait for sensor to finish
-    uint16_t range = requestRange();
-    //Get the range from the sensor
-
-
-    rangValue = range;  //update the online range varable
-
-    Serial.print("Range String: "); Serial.println(String(rangValue));
-    //Print to the user
-
 }
 
 

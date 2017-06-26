@@ -14,6 +14,7 @@
 PRODUCT_ID(1623);
 PRODUCT_VERSION(12); //Remember to update const below
 
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 /******************************************************************************
   Basic SparkFun Photon Weather Shield
@@ -96,6 +97,18 @@ void setup()
 void loop()
 {
 
+  digitalWrite(led2, HIGH);
+  delay(5000);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+
+  getData();
+
+  Particle.connect();
+
   publishData();
 
   //delay(30000); // Wait for any over the air updates.
@@ -138,42 +151,43 @@ void loop()
 }
 //---------------------------------------------------------------
 
+void getData(){
+
+      digitalWrite(led2, HIGH);
+
+      //Get readings from all sensors
+      getWeather();
+
+      getRange();
+
+      getVoltage();
+
+
+      currentReading.timeStamp = Time.now();
+      currentReading.range = getRangeVal();
+      currentReading.internalTemp = tempC;
+      currentReading.internalPressure = pascals;
+      currentReading.internalHumidity = humidity;
+      currentReading.soc = soc;
+      currentReading.voltage = voltage;
+      CellularSignal sig = Cellular.RSSI();
+      currentReading.rssi = sig.rssi;
+
+      saveNewReading(currentReading);
+
+      currentReport.schemaVersion = getSchemaVersion();
+      currentReport.firmwareVersion = firmwareVersion;
+      String strDeviceID = System.deviceID();
+      strDeviceID.toCharArray(currentReport.deviceId, 24);
+      currentReport.nextUpdateTime = getNextUpdateCheck();
+      currentReport.readings[0] = currentReading;
+      for (int i=0; i<=10; i++){
+        currentReport.readings[i] =  getLastReading(i);
+      }
+
+}
 
 void publishData(){
-
-
-    digitalWrite(led2, HIGH);
-
-    //Get readings from all sensors
-    getWeather();
-
-    getRange();
-
-    getVoltage();
-
-
-    currentReading.timeStamp = Time.now();
-    currentReading.range = getRangeVal();
-    currentReading.internalTemp = tempC;
-    currentReading.internalPressure = pascals;
-    currentReading.internalHumidity = humidity;
-    currentReading.soc = soc;
-    currentReading.voltage = voltage;
-    CellularSignal sig = Cellular.RSSI();
-    currentReading.rssi = sig.rssi;
-
-    saveNewReading(currentReading);
-
-    currentReport.schemaVersion = getSchemaVersion();
-    currentReport.firmwareVersion = firmwareVersion;
-    String strDeviceID = System.deviceID();
-    strDeviceID.toCharArray(currentReport.deviceId, 24);
-    currentReport.nextUpdateTime = getNextUpdateCheck();
-    currentReport.readings[0] = currentReading;
-    for (int i=0; i<=10; i++){
-      currentReport.readings[i] =  getLastReading(i);
-    }
-
 
     //publishRSSI();
 

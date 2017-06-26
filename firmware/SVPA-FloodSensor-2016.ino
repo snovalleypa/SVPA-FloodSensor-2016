@@ -14,6 +14,7 @@
 PRODUCT_ID(1623);
 PRODUCT_VERSION(12); //Remember to update const below
 
+// Impliments SEMI_AUTOMATIC sleep mode.
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 /******************************************************************************

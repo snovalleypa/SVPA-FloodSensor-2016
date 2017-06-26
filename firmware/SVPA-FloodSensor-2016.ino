@@ -21,10 +21,11 @@ PRODUCT_VERSION(12); //Remember to update const below
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
 #include "checkUpdateOTA.h"
+#include "checkRange.h"
 #include "publishSVPA.h"
 
 const int firmwareVersion = 10;
-const int debugLevel = 1;
+const int debugLevel = 0;
 
 double humidity = 0;
 double tempf = 0;
@@ -48,22 +49,6 @@ long lastPublish = 0;
 //Create Instance of HTU21D or SI7021 temp and humidity sensor and MPL3115A2 barometric sensor
 Weather weatherShield;
 
-/******************************************************************************
-  Basic Range finding with I2CXL-MaxSonar
-  Assumes the sensor is using the default address
-
-*******************************************************************************/
-
-//The Wire library uses the 7-bit version of the address, so the code example uses 0x70 instead of the 8-bit 0xE0
-#define SensorAddress byte(0x70)
-//The sensors ranging command has a value of 0x51
-#define RangeCommand byte(0x51)
-//These are the two commands that need to be sent in sequence to change the sensor address
-#define ChangeAddressCommand1 byte(0xAA)
-#define ChangeAddressCommand2 byte(0xA5)
-
-int rangValue = 0;
-int rangeRep = 30; // Number of range readings to take and average.
 
 int led2 = D7; // Instead of writing D7 over and over again, we'll write led2
 
@@ -78,7 +63,7 @@ void setup()
     Particle.variable("tempF", tempf);
     Particle.variable("pressurePascals", pascals);
     Particle.variable("baroTemp", baroTemp);
-    Particle.variable("range", rangValue);
+    Particle.variable("range", );
     */
 
     //Initialize the I2C sensors and ping them
@@ -168,7 +153,7 @@ void publishData(){
 
 
     currentReading.timeStamp = Time.now();
-    currentReading.range = rangValue;
+    currentReading.range = getRangeVal();
     currentReading.internalTemp = tempC;
     currentReading.internalPressure = pascals;
     currentReading.internalHumidity = humidity;
@@ -225,7 +210,7 @@ void publishWeather(){
 
 void publishRange(){
 
-    Particle.publish("Range", String(rangValue)); // Publish a range event
+    Particle.publish("Range", String(getRangeVal())); // Publish a range event
     delay(1000);
 
 
@@ -258,87 +243,6 @@ void getWeather()
   altf = weatherShield.readAltitudeFt();
 }
 
-void getRange() {
-
-    int rangeReadingIndex;
-    int rangeReading[rangeRep];
-    uint16_t range;
-    int rangeSum = 0;
-    int rangeCount,rangeMax;
-    float rangeAvg;
-    for (int i=0; i<=rangeRep; i++){
-      //currentReport.readings[i] =  getLastReading(i);
-
-      takeRangeReading();
-      //Tell the sensor to perform a ranging cycle
-      delay(100);
-      //Wait for sensor to finish
-      range = requestRange();
-      //Get the range from the sensor
-
-      rangeReading[i] = range;
-
-      // @TODO Add debugging feedback. LEDs?
-      Serial.print("Range String - ");
-      Serial.println(String(i));
-      Serial.print(": ");
-      Serial.println(String(rangeReading[i]));
-      //Print to the user
-
-      delay(500);
-    }
-
-    // @TODO Screen for outliers and compute the average range.
-
-    rangeMax = 0;
-    rangeSum = 0;
-    for (int i=0; i<=rangeRep; i++){
-      rangeSum = rangeSum + rangeReading[i];
-      if (range > rangeMax) {rangeMax = rangeReading[i];};
-
-
-    }
-    rangeAvg = rangeSum / rangeRep;  //update the online range varable
-
-    Serial.print("Range Average: "); Serial.println(String(rangeAvg));
-    //Print to the user
-    Serial.print("Range Max: "); Serial.println(String(rangeMax));
-    //Print to the user
-
-    //rangValue = (int) rangeAvg;
-    rangValue = rangeMax;
-
-}
-
-void takeRangeReading(){
-    Wire.beginTransmission(SensorAddress);
-    //Start addressing
-    Wire.write(RangeCommand);
-    //send range command
-    Wire.endTransmission();
-    //Stop and do something else now
-}
-
-
-//Returns the last range that the sensor determined in its last ranging cycle in centimeters. Returns 0 if there is no communication.
-uint16_t requestRange(){
-    Wire.requestFrom(SensorAddress, byte(2));
-    if(Wire.available() >= 2){
-        //Sensor responded with the two bytes
-        byte HighByte = Wire.read();
-        //Read the high byte back
-        byte LowByte = Wire.read();
-        //Read the low byte back
-        //uint16_t range = uint16_t(HighByte, LowByte);
-        uint16_t range = 256 * HighByte + LowByte;
-        //Make a 16-bit word out of the two bytes for the range
-        return range;
-    }
-    else {
-        return uint16_t(0);
-        //Else nothing was received, return 0
-    }
-}
 
 void getVoltage () {
     // fuel.getVCell() Returns the battery voltage as a float

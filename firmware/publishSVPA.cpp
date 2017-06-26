@@ -175,6 +175,10 @@ void publishReading(Reading theReading){
 }
 
 void publishDebug(String debugString){
+  Serial.print("Debug: "); Serial.println(String(debugString));
+  //Print to the user
+
+  /*
   if(debugLevel>=1){
     if(debugString.length()<=250){
       Particle.publish("debug", debugString);
@@ -184,6 +188,7 @@ void publishDebug(String debugString){
       publishDebug(debugString.substring(250));
     }
   }
+  */
 }
 
 int pushReport(Report newReport){

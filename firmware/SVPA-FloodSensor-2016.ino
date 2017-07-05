@@ -12,8 +12,10 @@
 
 *******************************************************************************/
 PRODUCT_ID(1623);
-PRODUCT_VERSION(10); //Remember to update const below
+PRODUCT_VERSION(12); //Remember to update const below
 
+// Impliments SEMI_AUTOMATIC sleep mode.
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 /******************************************************************************
   Basic SparkFun Photon Weather Shield
@@ -21,10 +23,11 @@ PRODUCT_VERSION(10); //Remember to update const below
 #include "SparkFun_Photon_Weather_Shield_Library.h"
 
 #include "checkUpdateOTA.h"
+#include "checkRange.h"
 #include "publishSVPA.h"
 
 const int firmwareVersion = 10;
-const int debugLevel = 1;
+const int debugLevel = 0;
 
 double humidity = 0;
 double tempf = 0;
@@ -48,21 +51,6 @@ long lastPublish = 0;
 //Create Instance of HTU21D or SI7021 temp and humidity sensor and MPL3115A2 barometric sensor
 Weather weatherShield;
 
-/******************************************************************************
-  Basic Range finding with I2CXL-MaxSonar
-  Assumes the sensor is using the default address
-
-*******************************************************************************/
-
-//The Wire library uses the 7-bit version of the address, so the code example uses 0x70 instead of the 8-bit 0xE0
-#define SensorAddress byte(0x70)
-//The sensors ranging command has a value of 0x51
-#define RangeCommand byte(0x51)
-//These are the two commands that need to be sent in sequence to change the sensor address
-#define ChangeAddressCommand1 byte(0xAA)
-#define ChangeAddressCommand2 byte(0xA5)
-
-int rangValue = 0;
 
 int led2 = D7; // Instead of writing D7 over and over again, we'll write led2
 
@@ -77,7 +65,7 @@ void setup()
     Particle.variable("tempF", tempf);
     Particle.variable("pressurePascals", pascals);
     Particle.variable("baroTemp", baroTemp);
-    Particle.variable("range", rangValue);
+    Particle.variable("range", );
     */
 
     //Initialize the I2C sensors and ping them
@@ -109,6 +97,18 @@ void setup()
 //---------------------------------------------------------------
 void loop()
 {
+
+  digitalWrite(led2, HIGH);
+  delay(5000);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+
+  getData();
+
+  Particle.connect();
 
   publishData();
 
@@ -152,42 +152,43 @@ void loop()
 }
 //---------------------------------------------------------------
 
+void getData(){
+
+      digitalWrite(led2, HIGH);
+
+      //Get readings from all sensors
+      getWeather();
+
+      getRange();
+
+      getVoltage();
+
+
+      currentReading.timeStamp = Time.now();
+      currentReading.range = getRangeVal();
+      currentReading.internalTemp = tempC;
+      currentReading.internalPressure = pascals;
+      currentReading.internalHumidity = humidity;
+      currentReading.soc = soc;
+      currentReading.voltage = voltage;
+      CellularSignal sig = Cellular.RSSI();
+      currentReading.rssi = sig.rssi;
+
+      saveNewReading(currentReading);
+
+      currentReport.schemaVersion = getSchemaVersion();
+      currentReport.firmwareVersion = firmwareVersion;
+      String strDeviceID = System.deviceID();
+      strDeviceID.toCharArray(currentReport.deviceId, 24);
+      currentReport.nextUpdateTime = getNextUpdateCheck();
+      currentReport.readings[0] = currentReading;
+      for (int i=0; i<=10; i++){
+        currentReport.readings[i] =  getLastReading(i);
+      }
+
+}
 
 void publishData(){
-
-
-    digitalWrite(led2, HIGH);
-
-    //Get readings from all sensors
-    getWeather();
-
-    getRange();
-
-    getVoltage();
-
-
-    currentReading.timeStamp = Time.now();
-    currentReading.range = rangValue;
-    currentReading.internalTemp = tempC;
-    currentReading.internalPressure = pascals;
-    currentReading.internalHumidity = humidity;
-    currentReading.soc = soc;
-    currentReading.voltage = voltage;
-    CellularSignal sig = Cellular.RSSI();
-    currentReading.rssi = sig.rssi;
-
-    saveNewReading(currentReading);
-
-    currentReport.schemaVersion = getSchemaVersion();
-    currentReport.firmwareVersion = firmwareVersion;
-    String strDeviceID = System.deviceID();
-    strDeviceID.toCharArray(currentReport.deviceId, 24);
-    currentReport.nextUpdateTime = getNextUpdateCheck();
-    currentReport.readings[0] = currentReading;
-    for (int i=0; i<=10; i++){
-      currentReport.readings[i] =  getLastReading(i);
-    }
-
 
     //publishRSSI();
 
@@ -224,7 +225,7 @@ void publishWeather(){
 
 void publishRange(){
 
-    Particle.publish("Range", String(rangValue)); // Publish a range event
+    Particle.publish("Range", String(getRangeVal())); // Publish a range event
     delay(1000);
 
 
@@ -257,53 +258,6 @@ void getWeather()
   altf = weatherShield.readAltitudeFt();
 }
 
-void takeRangeReading(){
-    Wire.beginTransmission(SensorAddress);
-    //Start addressing
-    Wire.write(RangeCommand);
-    //send range command
-    Wire.endTransmission();
-    //Stop and do something else now
-}
-
-void getRange() {
-
-
-    takeRangeReading();
-    //Tell the sensor to perform a ranging cycle
-    delay(100);
-    //Wait for sensor to finish
-    uint16_t range = requestRange();
-    //Get the range from the sensor
-
-
-    rangValue = range;  //update the online range varable
-
-    Serial.print("Range String: "); Serial.println(String(rangValue));
-    //Print to the user
-
-}
-
-
-//Returns the last range that the sensor determined in its last ranging cycle in centimeters. Returns 0 if there is no communication.
-uint16_t requestRange(){
-    Wire.requestFrom(SensorAddress, byte(2));
-    if(Wire.available() >= 2){
-        //Sensor responded with the two bytes
-        byte HighByte = Wire.read();
-        //Read the high byte back
-        byte LowByte = Wire.read();
-        //Read the low byte back
-        //uint16_t range = uint16_t(HighByte, LowByte);
-        uint16_t range = 256 * HighByte + LowByte;
-        //Make a 16-bit word out of the two bytes for the range
-        return range;
-    }
-    else {
-        return uint16_t(0);
-        //Else nothing was received, return 0
-    }
-}
 
 void getVoltage () {
     // fuel.getVCell() Returns the battery voltage as a float

@@ -93,9 +93,8 @@ String getJSON(Report newReport){
   myJSON.concat("\"deviceId\":\"");
   myJSON.concat(String(newReport.deviceId));
   myJSON.concat("\",");
-  myJSON.concat("\"nextUpdateTime\":\"");
+  myJSON.concat("\"nextUpdateTime\":");
   myJSON.concat(String(newReport.nextUpdateTime));
-  myJSON.concat("\"");
   myJSON.concat(",");
   myJSON.concat("\"readings\":");
   myJSON.concat("[");
@@ -115,9 +114,9 @@ String getJSON(Report newReport){
 
 String getJSON(Reading newReading){
   String myJSON = "{";
-  myJSON.concat("\"timeStamp\":\"");
+  myJSON.concat("\"timeStamp\":");
   myJSON.concat(String(newReading.timeStamp));
-  myJSON.concat("\",");
+  myJSON.concat(",");
   myJSON.concat("\"range\":\"");
   myJSON.concat(String(newReading.range));
   myJSON.concat("\",");
@@ -176,6 +175,10 @@ void publishReading(Reading theReading){
 }
 
 void publishDebug(String debugString){
+  Serial.print("Debug: "); Serial.println(String(debugString));
+  //Print to the user
+
+  /*
   if(debugLevel>=1){
     if(debugString.length()<=250){
       Particle.publish("debug", debugString);
@@ -185,6 +188,7 @@ void publishDebug(String debugString){
       publishDebug(debugString.substring(250));
     }
   }
+  */
 }
 
 int pushReport(Report newReport){

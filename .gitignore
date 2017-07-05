@@ -1,3 +1,6 @@
+# ignore private config information
+privateConfig.h
+
 # ignore compiled bin files generated when flashing firmware
 *.bin
 
@@ -29,3 +32,6 @@
 *.exe
 *.out
 *.app
+
+# Private keys etc.
+privateConfig.h

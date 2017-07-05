@@ -13,6 +13,8 @@
 *******************************************************************************/
 PRODUCT_ID(1623);
 PRODUCT_VERSION(13); //Remember to update const below
+const int firmwareVersion = 13;
+const int debugLevel = 0;
 
 // Impliments SEMI_AUTOMATIC sleep mode.
 SYSTEM_MODE(SEMI_AUTOMATIC);
@@ -26,8 +28,6 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 #include "checkRange.h"
 #include "publishSVPA.h"
 
-const int firmwareVersion = 10;
-const int debugLevel = 0;
 
 double humidity = 0;
 double tempf = 0;
@@ -107,6 +107,21 @@ void loop()
   digitalWrite(led2, LOW);
 
   getData();
+
+  // Signal via LED that data collection is done and starting the radio.
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(500);
+  digitalWrite(led2, LOW);
+  delay(500);
+  digitalWrite(led2, HIGH);
+  delay(2000);
+  digitalWrite(led2, LOW);
+
+  //@TODO Make decision regarding need to connect.
 
   Particle.connect();
 

@@ -32,3 +32,6 @@ privateConfig.h
 *.exe
 *.out
 *.app
+
+# Private keys etc.
+privateConfig.h

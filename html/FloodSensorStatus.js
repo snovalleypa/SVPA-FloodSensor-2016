@@ -4,9 +4,6 @@
 
 *******************************************************************************/
 
-var socBaseURL = "https://data.sparkfun.com/output/9JN3JagnELSWrOQvXVN0?grep[source]=";
-var rangeBaseURL = "https://data.sparkfun.com/output/n1EQXJJb6mUzDLV52dN5?grep[source]=";
-var readingBaseURL = "https://data.sparkfun.com/output/DJRQXRM3l1fznqO64VdA?grep[source]=";
 
 var plotDataURL = "";
 

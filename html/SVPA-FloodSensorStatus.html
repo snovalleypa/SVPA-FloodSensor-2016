@@ -10,6 +10,7 @@
     th.center, td.center { text-align: center; }
     th.num, td.num { text-align: right; }
     span.DeviceID {font-size: 75%;}
+    span.LastConnection {font-style:italic;}
 
     .axis--x path {
       display: none;
@@ -27,12 +28,22 @@
     <h1>SVPA Sensor Status</h1>
     <p > as of: <em><span id=lastUpdate>TBD</span></em></p>
     <h3>Devices</h3>
-    <div id="deviceList"></div>
+    <div id=""></div>
+    <h3>Event Stream</h3>
+    <div id="events"></div>
+    <!--
     <h3>State of Charge</h3>
     <div id="graph"></div>
+    -->
   </body>
 
   <script src="http://d3js.org/d3.v4.js"></script>
+  <script src="privateConfig.js"></script>
   <script src="DeviceList.js"></script>
+  <script type="text/javascript"
+    src="//cdn.jsdelivr.net/particle-api-js/5/particle.min.js"></script>
+  <script src="FloodSensorEvents.js"></script>
+  <!--
   <script src="FloodSensorStatus.js"></script>
+  -->
 </html>

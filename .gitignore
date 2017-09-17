@@ -35,3 +35,7 @@ privateConfig.h
 
 # Private keys etc.
 privateConfig.h
+privateConfig.js
+
+../analysis/
+

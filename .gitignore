@@ -37,5 +37,6 @@ privateConfig.h
 privateConfig.h
 privateConfig.js
 
-../analysis/
+analysis/
+z_Archives/
 
